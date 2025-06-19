@@ -14,15 +14,15 @@ export default function Dashboard({ aspirasis, votedAspirasiIds }) {
 
     const handleVote = (id, done) => {
         if (votedIds.includes(id)) {
-            done?.(); // Jika sudah vote, langsung stop loading
+            done?.(); // jika sudah vote, hentikan loading button
             return;
         }
 
-        // Optimistic UI update
+        // Optimistic update
         setDataAspirasi((prev) =>
             prev.map((item) =>
                 item.id === id
-                    ? { ...item, votes_count: item.votes_count + 1 }
+                    ? { ...item, votes_count: (item.votes_count || 0) + 1 }
                     : item,
             ),
         );
@@ -31,23 +31,26 @@ export default function Dashboard({ aspirasis, votedAspirasiIds }) {
         post(route('aspirasi.vote', id), {
             preserveScroll: true,
             onSuccess: () => {
-                // Setelah sukses vote, reload data fresh
+                // Refresh aspirasis & votedAspirasiIds fresh dari server
                 router.reload({
                     only: ['aspirasis', 'votedAspirasiIds'],
-                    onFinish: done, // agar loading selesai setelah reload selesai
+                    onFinish: done, // selesai loading button
                 });
             },
             onError: () => {
-                // Rollback jika gagal vote
+                // Rollback jika error
                 setDataAspirasi((prev) =>
                     prev.map((item) =>
                         item.id === id
-                            ? { ...item, votes_count: item.votes_count - 1 }
+                            ? {
+                                  ...item,
+                                  votes_count: (item.votes_count || 1) - 1,
+                              }
                             : item,
                     ),
                 );
                 setVotedIds((prev) => prev.filter((vId) => vId !== id));
-                done?.(); // Stop loading walau error
+                done?.();
             },
         });
     };
@@ -69,8 +72,8 @@ export default function Dashboard({ aspirasis, votedAspirasiIds }) {
                             <AspirasiCard
                                 key={item.id}
                                 item={item}
-                                onVote={handleVote}
-                                voted={votedIds.includes(item.id)}
+                                initialVoted={votedIds.includes(item.id)}
+                                onVote={(done) => handleVote(item.id, done)}
                             />
                         ))
                     ) : (

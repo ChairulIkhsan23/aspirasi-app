@@ -1,21 +1,35 @@
 import VoteButton from '@/Components/VoteButton';
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function AspirasiCard({ item, initialVoted = false }) {
     const [voted, setVoted] = useState(initialVoted);
     const [votesCount, setVotesCount] = useState(item.votes_count ?? 0);
 
-    const handleVote = () => {
-        if (!voted) {
-            setVoted(true);
-            setVotesCount((prev) => prev + 1);
-        }
+    const handleVote = (done) => {
+        if (voted) return;
+
+        router.post(
+            route('aspirasi.vote', item.id),
+            {},
+            {
+                onSuccess: () => {
+                    setVoted(true);
+                    setVotesCount((prev) => prev + 1);
+                    if (done) done();
+                },
+                onError: () => {
+                    alert('Vote gagal. Coba lagi.');
+                    if (done) done();
+                },
+            },
+        );
     };
 
     return (
         <div className="mb-6 w-full max-w-2xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
             <div className="p-6">
-                {/* Header Section */}
+                {/* Header */}
                 <div className="flex items-start justify-between space-x-4">
                     <div className="min-w-0 flex-1">
                         <span className="mb-2 inline-block rounded-md bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
@@ -41,12 +55,12 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                     </span>
                 </div>
 
-                {/* Content Section */}
+                {/* Isi */}
                 <p className="mt-3 text-base leading-relaxed text-gray-600">
                     {item.isi}
                 </p>
 
-                {/* Footer Section */}
+                {/* Footer */}
                 <div className="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center">
                         <span className="text-sm font-medium text-gray-600">
@@ -74,18 +88,11 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                             </svg>
                             {votesCount}
                         </span>
-                        <VoteButton
-                            initialVoted={voted}
-                            onVote={(done) => {
-                                handleVote(item.id);
-                                if (done) done(); // panggil callback selesai voting
-                            }}
-                            className=""
-                        />
+                        <VoteButton initialVoted={voted} onVote={handleVote} />
                     </div>
                 </div>
 
-                {/* Admin Follow-up Section */}
+                {/* Tindak Lanjut */}
                 {item.komentar_tindak_lanjut && (
                     <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50 p-4">
                         <div className="flex items-start space-x-3">
@@ -107,22 +114,16 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                                     Tindak Lanjut Admin
                                 </h4>
                                 <div className="mt-2 space-y-1.5 text-sm text-blue-700">
-                                    {Array.isArray(
-                                        item.komentar_tindak_lanjut.keterangan,
-                                    )
-                                        ? item.komentar_tindak_lanjut.keterangan.map(
-                                              (line, index) => (
-                                                  <p key={index}>{line}</p>
-                                              ),
-                                          )
-                                        : item.komentar_tindak_lanjut.keterangan
-                                              .split('\n')
-                                              .map((line, index) => (
-                                                  <p key={index}>{line}</p>
-                                              ))}
+                                    {item.komentar_tindak_lanjut.keterangan
+                                        .split('\n')
+                                        .map((line, index) => (
+                                            <p key={index}>{line}</p>
+                                        ))}
                                 </div>
                                 <p className="mt-2 text-xs text-blue-500">
-                                    {new Date().toLocaleString('id-ID', {
+                                    {new Date(
+                                        item.komentar_tindak_lanjut.tanggal,
+                                    ).toLocaleString('id-ID', {
                                         day: 'numeric',
                                         month: 'long',
                                         year: 'numeric',
