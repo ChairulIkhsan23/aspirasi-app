@@ -30,9 +30,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [AspirasiController::class, 'index'])->name('dashboard');
     Route::post('/aspirasi/{id}/vote', [AspirasiController::class, 'vote'])->name('aspirasi.vote');
 });
-// Route::get('/dashboard', [DashboardController::class, 'index'])
-//     ->middleware(['auth', 'verified'])->name('dashboard');
-
 /*
 |--------------------------------------------------------------------------
 | Auth Routes - Login, Register, Logout

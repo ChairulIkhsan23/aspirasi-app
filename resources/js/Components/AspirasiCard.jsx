@@ -76,7 +76,10 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                         </span>
                         <VoteButton
                             initialVoted={voted}
-                            onVote={handleVote}
+                            onVote={(done) => {
+                                handleVote(item.id);
+                                if (done) done(); // panggil callback selesai voting
+                            }}
                             className=""
                         />
                     </div>

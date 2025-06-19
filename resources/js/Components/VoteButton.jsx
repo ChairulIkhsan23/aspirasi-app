@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function VoteButton({
     initialVoted = false,
@@ -8,17 +8,29 @@ export default function VoteButton({
     const [voted, setVoted] = useState(initialVoted);
     const [loading, setLoading] = useState(false);
 
+    // Update state voted kalau initialVoted berubah (saat reload dari server)
+    useEffect(() => {
+        setVoted(initialVoted);
+    }, [initialVoted]);
+
     const handleClick = () => {
         if (loading || voted) return;
 
         setLoading(true);
 
-        // Simulasi proses vote selesai dalam 0.8 detik
-        setTimeout(() => {
-            setVoted(true);
-            setLoading(false);
-            if (onVote) onVote();
-        }, 800);
+        if (onVote) {
+            // onVote seharusnya sudah melakukan POST + reload ke server
+            onVote(() => {
+                setVoted(true);
+                setLoading(false);
+            });
+        } else {
+            // fallback kalau tidak ada onVote
+            setTimeout(() => {
+                setVoted(true);
+                setLoading(false);
+            }, 800);
+        }
     };
 
     return (
@@ -26,11 +38,13 @@ export default function VoteButton({
             type="button"
             onClick={handleClick}
             disabled={loading || voted}
-            className={`flex items-center space-x-1 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 focus:outline-none ${loading ? 'cursor-wait opacity-70' : ''} ${
+            className={`flex items-center space-x-1 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 focus:outline-none ${
+                loading ? 'cursor-wait opacity-70' : ''
+            } ${
                 voted
-                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'cursor-not-allowed bg-gray-300 text-gray-700'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
-            } ${className} `}
+            } ${className}`}
         >
             {loading ? (
                 <>
@@ -62,7 +76,7 @@ export default function VoteButton({
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 16 16"
                         fill="currentColor"
-                        class="size-4"
+                        className="size-4"
                     >
                         <path d="M7.557 2.066A.75.75 0 0 1 8 2.75v10.5a.75.75 0 0 1-1.248.56L3.59 11H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.59l3.162-2.81a.75.75 0 0 1 .805-.124ZM12.95 3.05a.75.75 0 1 0-1.06 1.06 5.5 5.5 0 0 1 0 7.78.75.75 0 1 0 1.06 1.06 7 7 0 0 0 0-9.9Z" />
                         <path d="M10.828 5.172a.75.75 0 1 0-1.06 1.06 2.5 2.5 0 0 1 0 3.536.75.75 0 1 0 1.06 1.06 4 4 0 0 0 0-5.656Z" />
