@@ -1,6 +1,17 @@
 import VoteButton from '@/Components/VoteButton';
+import { useState } from 'react';
 
-export default function AspirasiCard({ item, onVote, voted }) {
+export default function AspirasiCard({ item, initialVoted = false }) {
+    const [voted, setVoted] = useState(initialVoted);
+    const [votesCount, setVotesCount] = useState(item.votes_count ?? 0);
+
+    const handleVote = () => {
+        if (!voted) {
+            setVoted(true);
+            setVotesCount((prev) => prev + 1);
+        }
+    };
+
     return (
         <div className="mb-6 w-full max-w-2xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
             <div className="p-6">
@@ -41,9 +52,7 @@ export default function AspirasiCard({ item, onVote, voted }) {
                         <span className="text-sm font-medium text-gray-600">
                             Pengirim:{' '}
                             <span className="font-normal text-gray-800">
-                                {item.user?.email && !item.is_anonim
-                                    ? item.user.email
-                                    : item.pengirim || 'Anonim'}
+                                {item.pengirim || 'Anonim'}
                             </span>
                         </span>
                     </div>
@@ -63,12 +72,12 @@ export default function AspirasiCard({ item, onVote, voted }) {
                                     d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
                                 />
                             </svg>
-                            {item.votes_count ?? 0}
+                            {votesCount}
                         </span>
                         <VoteButton
-                            onClick={() => onVote(item.id)}
-                            voted={voted}
-                            className="rounded-lg px-4 py-2 text-sm"
+                            initialVoted={voted}
+                            onVote={handleVote}
+                            className=""
                         />
                     </div>
                 </div>
@@ -110,11 +119,7 @@ export default function AspirasiCard({ item, onVote, voted }) {
                                               ))}
                                 </div>
                                 <p className="mt-2 text-xs text-blue-500">
-                                    {new Date(
-                                        item.komentar_tindak_lanjut
-                                            .created_at ||
-                                            item.komentar_tindak_lanjut.tanggal,
-                                    ).toLocaleString('id-ID', {
+                                    {new Date().toLocaleString('id-ID', {
                                         day: 'numeric',
                                         month: 'long',
                                         year: 'numeric',
