@@ -1,3 +1,4 @@
+import '@/../css/vote-button.css';
 import clickSound from '@/utils/Audio/click.mp3';
 import { useEffect, useState } from 'react';
 
@@ -37,32 +38,6 @@ export default function VoteButton({
 
     return (
         <>
-            {/* Inline Keyframes untuk animasi */}
-            <style jsx>{`
-                @keyframes scale-down {
-                    0% {
-                        transform: scale(1);
-                    }
-                    10% {
-                        transform: scale(0.95);
-                    }
-                    30% {
-                        transform: scale(1.05);
-                    }
-                    50% {
-                        transform: scale(1);
-                    }
-                }
-
-                .click-scale {
-                    transition: transform 0.2s ease;
-                }
-
-                .click-scale:active {
-                    animation: scale-down 0.3s ease forwards;
-                }
-            `}</style>
-
             <button
                 type="button"
                 onClick={handleClick}
