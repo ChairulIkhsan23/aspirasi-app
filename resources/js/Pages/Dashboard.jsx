@@ -1,9 +1,9 @@
 import AspirasiCard from '@/Components/AspirasiCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Dashboard({ aspirasis, votedAspirasiIds }) {
+export default function Dashboard({ aspirasis, votedAspirasiIds, auth }) {
     const { post } = useForm();
     const [dataAspirasi, setDataAspirasi] = useState(() =>
         Array.isArray(aspirasis) ? aspirasis : [],
@@ -57,10 +57,19 @@ export default function Dashboard({ aspirasis, votedAspirasiIds }) {
 
     return (
         <AuthenticatedLayout
+            user={auth.user}
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                        Dashboard
+                    </h2>
+                    <Link
+                        href={route('aspirasi.create')}
+                        className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-indigo-700 focus:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-indigo-900"
+                    >
+                        Tambah Aspirasi
+                    </Link>
+                </div>
             }
         >
             <Head title="Dashboard" />
@@ -77,9 +86,17 @@ export default function Dashboard({ aspirasis, votedAspirasiIds }) {
                             />
                         ))
                     ) : (
-                        <p className="text-gray-600">
-                            Belum ada aspirasi yang masuk.
-                        </p>
+                        <div className="overflow-hidden bg-white p-6 text-center shadow-sm sm:rounded-lg">
+                            <p className="mb-4 text-gray-600">
+                                Belum ada aspirasi yang masuk.
+                            </p>
+                            <Link
+                                href={route('aspirasi.create')}
+                                className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-indigo-700 focus:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-indigo-900"
+                            >
+                                Tambah Aspirasi Pertama
+                            </Link>
+                        </div>
                     )}
                 </div>
             </div>

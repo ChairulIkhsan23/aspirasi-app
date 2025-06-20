@@ -1,5 +1,5 @@
 import VoteButton from '@/Components/VoteButton';
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function AspirasiCard({ item, initialVoted = false }) {
@@ -88,7 +88,32 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                             </svg>
                             {votesCount}
                         </span>
+
+                        {/* Tombol Vote */}
                         <VoteButton initialVoted={voted} onVote={handleVote} />
+
+                        {/* Tombol Update: Hanya tampil jika user adalah pemilik aspirasi */}
+                        {item.is_owner && (
+                            <Link
+                                href={route('aspirasi.edit', item.id)}
+                                className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 transition hover:bg-gray-100"
+                            >
+                                <svg
+                                    className="mr-1.5 h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M11 5H6a2 2 0 00-2 2v11.5A1.5 1.5 0 005.5 20H17a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11 17H8v-3l9.586-9.586z"
+                                    />
+                                </svg>
+                                Update
+                            </Link>
+                        )}
                     </div>
                 </div>
 

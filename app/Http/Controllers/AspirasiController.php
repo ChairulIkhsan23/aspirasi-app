@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vote;
 use App\Models\Aspirasi;
+use App\Models\Topik;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
@@ -17,10 +18,13 @@ class AspirasiController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
+
         $aspirasis = Aspirasi::with(['topik', 'tindakLanjut', 'user'])
             ->withCount('votes')
+            ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($aspirasi) {
+            ->map(function ($aspirasi) use ($user) {
                 return [
                     'id' => $aspirasi->id,
                     'judul' => TextHelper::filterKasar($aspirasi->judul),
@@ -29,6 +33,7 @@ class AspirasiController extends Controller
                     'pengirim' => $aspirasi->is_anonim ? null : optional($aspirasi->user)->email,
                     'votes_count' => $aspirasi->votes_count ?? 0,
                     'topik' => $aspirasi->topik,
+                    'is_owner' => $user && $aspirasi->user_id === optional($user)->id,
                     'komentar_tindak_lanjut' => $aspirasi->tindakLanjut ? [
                         'keterangan' => TextHelper::filterKasar($aspirasi->tindakLanjut->keterangan),
                         'komentar' => $aspirasi->tindakLanjut->komentar ?? $aspirasi->tindakLanjut->tindak_lanjut,
@@ -36,8 +41,6 @@ class AspirasiController extends Controller
                     ] : null,
                 ];
             });
-
-        $user = Auth::user();
 
         $votedAspirasiIds = $user
             ? Vote::where('user_id', $user->id)->pluck('aspirasi_id')->toArray()
@@ -61,7 +64,7 @@ class AspirasiController extends Controller
         $user = $request->user();
 
         if (!$user) {
-            return response()->json(['message' => 'Anda belum login.'], 401);
+            return redirect()->route('dashboard')->with('error', 'Anda belum login.');
         }
 
         $sudahVote = Vote::where('user_id', $user->id)
@@ -69,7 +72,7 @@ class AspirasiController extends Controller
             ->exists();
 
         if ($sudahVote) {
-            return response()->json(['message' => 'Anda sudah vote aspirasi ini.'], 409);
+            return redirect()->route('dashboard')->with('error', 'Anda sudah vote aspirasi ini.');
         }
 
         // Simpan vote
@@ -85,4 +88,75 @@ class AspirasiController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Vote berhasil.');
     }
+
+    /**
+     * Halaman untuk tambah aspirasi.
+     */
+    public function create()
+    {
+        Log::info('Mengakses halaman tambah aspirasi.');
+
+        $topiks = Topik::all();
+
+        return Inertia::render('Aspirasi/Create', [
+            'topiks' => $topiks,
+        ]);
+    }
+
+    /**
+     * Simpan aspirasi baru.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'isi' => 'required|string',
+            'topik_id' => 'required|exists:topiks,id',
+            'is_anonim' => 'boolean',
+        ]);
+
+        $user = Auth::user();
+        $userId = $user && !$request->is_anonim ? $user->id : null;
+
+        Aspirasi::create([
+            'judul' => $validated['judul'],
+            'isi' => $validated['isi'],
+            'topik_id' => $validated['topik_id'],
+            'user_id' => $userId,
+            'is_anonim' => $validated['is_anonim'] ?? false,
+        ]);
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Aspirasi berhasil dikirim!');
+    }
+
+    public function edit(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return redirect()->route('dashboard')->with('error', 'Anda belum login.');
+        }
+
+        // Ambil aspirasi yang akan diupdate, pastikan milik user
+        $aspirasi = Aspirasi::where('id', $id)
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhereNull('user_id'); // Optional: Untuk aspirasi anonim
+            })
+            ->first();
+
+        if (!$aspirasi) {
+            return redirect()->route('dashboard')->with('error', 'Aspirasi tidak ditemukan atau bukan milik Anda.');
+        }
+
+        // Ambil semua topik untuk pilihan dropdown (kalau butuh)
+        $topiks = \App\Models\Topik::all();
+
+        return Inertia::render('Aspirasi/Edit', [
+            'aspirasi' => $aspirasi,
+            'topiks' => $topiks,
+        ]);
+    }
+
 }
