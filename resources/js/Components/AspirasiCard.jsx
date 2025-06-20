@@ -1,7 +1,7 @@
+import DeleteConfirmation from '@/Components/DeleteConfirmation';
 import VoteButton from '@/Components/VoteButton';
 import { Ziggy } from '@/ziggy';
 import { Link, router } from '@inertiajs/react';
-import axios from 'axios';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
 
@@ -29,32 +29,6 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                 },
             },
         );
-    };
-
-    const handleDelete = () => {
-        const url = `/aspirasi/${item.id}`;
-
-        if (confirm('Yakin ingin menghapus aspirasi ini?')) {
-            axios
-                .post(
-                    url,
-                    { _method: 'DELETE' },
-                    {
-                        headers: {
-                            'X-CSRF-TOKEN': document
-                                .querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content'),
-                        },
-                    },
-                )
-                .then(() => {
-                    alert('Berhasil dihapus!');
-                    window.location.reload();
-                })
-                .catch(() => {
-                    alert('Gagal menghapus aspirasi.');
-                });
-        }
     };
 
     return (
@@ -147,25 +121,11 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                                     </svg>
                                     Update
                                 </Link>
-                                <button
-                                    onClick={handleDelete}
-                                    className="inline-flex items-center rounded-md border border-red-300 bg-red-50 px-3 py-1.5 text-xs text-red-700 transition hover:bg-red-100"
-                                >
-                                    <svg
-                                        className="mr-1.5 h-4 w-4"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v2H9V4a1 1 0 011-1zM4 7h16"
-                                        />
-                                    </svg>
-                                    Hapus
-                                </button>
+
+                                <DeleteConfirmation
+                                    item={item}
+                                    onDeleted={() => window.location.reload()}
+                                />
                             </>
                         )}
                     </div>

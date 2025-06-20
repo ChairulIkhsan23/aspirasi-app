@@ -1,20 +1,55 @@
-import { router } from '@inertiajs/react';
+// DeleteConfirmation.jsx
+import axios from 'axios';
 import { useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function DeleteConfirmation({ item }) {
+export default function DeleteConfirmation({ item, onDeleted }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDelete = () => {
         setIsDeleting(true);
-        router.delete(route('aspirasi.destroy', item.id), {
-            preserveScroll: true,
-            onSuccess: () => setIsOpen(false),
-            onError: () => {
-                alert('Gagal menghapus aspirasi');
+        axios
+            .post(
+                `/aspirasi/${item.id}`,
+                { _method: 'DELETE' },
+                {
+                    headers: {
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content'),
+                    },
+                },
+            )
+            .then(() => {
+                // Ganti alert dengan toast
+                toast.success('Berhasil dihapus!', {
+                    position: 'top-right',
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: 'colored',
+                });
+                setIsOpen(false);
+                if (onDeleted) onDeleted();
+            })
+            .catch(() => {
+                toast.error('Gagal menghapus aspirasi.', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: 'colored',
+                });
                 setIsDeleting(false);
-            },
-        });
+            });
     };
 
     return (
@@ -39,6 +74,7 @@ export default function DeleteConfirmation({ item }) {
                 Hapus
             </button>
 
+            {/* Modal Konfirmasi */}
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
@@ -69,6 +105,9 @@ export default function DeleteConfirmation({ item }) {
                     </div>
                 </div>
             )}
+
+            {/* React Toastify Container */}
+            <ToastContainer />
         </>
     );
 }
