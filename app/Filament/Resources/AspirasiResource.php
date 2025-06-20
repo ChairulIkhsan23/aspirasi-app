@@ -234,7 +234,8 @@ class AspirasiResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with('user')
-            ->withCount('votes');
+            ->withCount('votes')
+            ->orderBy('created_at', 'desc');
     }
 
     public static function getPages(): array
