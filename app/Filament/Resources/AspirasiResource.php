@@ -26,6 +26,8 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 
 // Database Eloquent
 use Illuminate\Database\Eloquent\Builder;
@@ -150,8 +152,18 @@ class AspirasiResource extends Resource
                 ->color(fn ($state) => match ($state) {
                     'disetujui' => 'success',
                     'perlu ditinjau' => 'warning',
-    }),
-  
+            }),
+        ])
+
+        ->actions([
+            DeleteAction::make(),
+        ])
+
+        ->bulkActions([
+            DeleteBulkAction::make()
+                ->label('Hapus Dipilih')
+                ->requiresConfirmation() 
+                ->color('danger'), 
         ])
 
         ->filters([
@@ -221,8 +233,6 @@ class AspirasiResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('user');
-        return parent::getEloquentQuery()
             ->with('user')
             ->withCount('votes');
     }
@@ -242,7 +252,7 @@ class AspirasiResource extends Resource
 
     public static function canDeleteAny(): bool
     {
-        return false;
+        return true;
     }
 
 

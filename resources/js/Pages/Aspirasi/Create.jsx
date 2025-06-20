@@ -119,7 +119,6 @@ export default function Create({ auth, topiks }) {
                                         type="checkbox"
                                         name="is_anonim"
                                         checked={data.is_anonim}
-                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                         onChange={(e) =>
                                             setData(
                                                 'is_anonim',
@@ -127,6 +126,7 @@ export default function Create({ auth, topiks }) {
                                             )
                                         }
                                     />
+
                                     <InputLabel
                                         htmlFor="is_anonim"
                                         value="Kirim sebagai anonim"

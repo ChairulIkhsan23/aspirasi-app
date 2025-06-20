@@ -77,7 +77,7 @@ class AspirasiFactory extends Factory
             'judul' => $judul,
             'isi' => $isi,
             'topik_id' => Topik::inRandomOrder()->first()->id ?? 1,
-            'lampiran' => 'lampiran/osprey2.jpg',
+            'lampiran' => '/assets/lampiran/lampiran.jpg',
             'is_anonim' => $this->faker->boolean(70),
         ];
     }

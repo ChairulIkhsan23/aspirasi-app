@@ -27,20 +27,21 @@ export default function AspirasiCard({ item, initialVoted = false }) {
     };
 
     return (
-        <div className="mb-6 w-full max-w-2xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
+        <div className="mb-6 w-full max-w-2xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
             <div className="p-6">
                 {/* Header */}
                 <div className="flex items-start justify-between space-x-4">
                     <div className="min-w-0 flex-1">
-                        <span className="mb-2 inline-block rounded-md bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                        <span className="mb-2 inline-block rounded bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
                             {item.topik?.nama ?? 'Topik tidak ditemukan'}
                         </span>
                         <h3 className="line-clamp-2 text-xl font-semibold text-gray-900">
                             {item.judul}
                         </h3>
                     </div>
+
                     <span
-                        className={`inline-flex items-center rounded-md px-3 py-1 text-xs font-medium ${
+                        className={`inline-flex items-center rounded px-3 py-1 text-xs font-medium ${
                             item.status === 'Selesai'
                                 ? 'bg-green-400 text-white'
                                 : item.status === 'Diterima' ||
@@ -56,23 +57,23 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                 </div>
 
                 {/* Isi */}
-                <p className="mt-3 text-base leading-relaxed text-gray-600">
+                <p className="mt-3 text-base leading-relaxed text-gray-700">
                     {item.isi}
                 </p>
 
                 {/* Footer */}
                 <div className="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center">
-                        <span className="text-sm font-medium text-gray-600">
-                            Pengirim:{' '}
-                            <span className="font-normal text-gray-800">
-                                {item.pengirim || 'Anonim'}
-                            </span>
+                    <div className="text-sm text-gray-600">
+                        Pengirim:{' '}
+                        <span className="font-medium text-gray-900">
+                            {item.is_anonim
+                                ? 'Anonim'
+                                : item.pengirim || 'Tidak diketahui'}
                         </span>
                     </div>
 
-                    <div className="flex items-center justify-end space-x-4">
-                        <span className="flex items-center text-sm font-medium text-gray-600">
+                    <div className="flex items-center justify-end space-x-3">
+                        <span className="flex items-center text-sm text-gray-600">
                             <svg
                                 className="mr-1.5 h-4 w-4"
                                 fill="none"
@@ -89,11 +90,10 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                             {votesCount}
                         </span>
 
-                        {/* Tombol Vote */}
                         <VoteButton initialVoted={voted} onVote={handleVote} />
 
-                        {/* Tombol Update: Hanya tampil jika user adalah pemilik aspirasi */}
-                        {item.is_owner && !item.is_anonim && (
+                        {/* Tombol Update tetap tampil jika pemilik */}
+                        {item.is_owner && (
                             <Link
                                 href={route('aspirasi.edit', item.id)}
                                 className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 transition hover:bg-gray-100"
@@ -120,8 +120,8 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                 {/* Tindak Lanjut */}
                 {item.komentar_tindak_lanjut && (
                     <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50 p-4">
-                        <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 pt-0.5">
+                        <div className="flex space-x-3">
+                            <div className="pt-0.5">
                                 <svg
                                     className="h-5 w-5 text-blue-600"
                                     fill="currentColor"
@@ -134,7 +134,7 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                                     />
                                 </svg>
                             </div>
-                            <div className="min-w-0 flex-1">
+                            <div className="flex-1">
                                 <h4 className="text-sm font-medium text-blue-800">
                                     Tindak Lanjut Admin
                                 </h4>

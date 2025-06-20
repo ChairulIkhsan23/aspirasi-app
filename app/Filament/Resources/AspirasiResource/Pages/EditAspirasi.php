@@ -4,6 +4,8 @@ namespace App\Filament\Resources\AspirasiResource\Pages;
 
 use App\Filament\Resources\AspirasiResource;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 
 class EditAspirasi extends EditRecord
 {
@@ -11,12 +13,15 @@ class EditAspirasi extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
+       return [
             \Filament\Actions\Action::make('delete')
-                ->action(fn () => $this->record->delete())
                 ->label('Hapus')
                 ->requiresConfirmation()
-                ->color('danger'),
+                ->color('danger')
+                ->action(function () {
+                    $this->record->delete();
+                    return redirect($this->getResource()::getUrl('index')); // ✅ Redirect biar tidak error
+                }),
         ];
     }
 
@@ -32,4 +37,16 @@ class EditAspirasi extends EditRecord
                 ->color('gray'),
         ];
     }
+
+    protected function resolveRecord($key): Model
+    {
+        $record = static::getResource()::getEloquentQuery()->find($key);
+
+        if (!$record) {
+            abort(404, 'Data aspirasi tidak ditemukan.');
+        }
+
+        return $record;
+    }
+
 }

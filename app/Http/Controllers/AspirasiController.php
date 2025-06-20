@@ -13,9 +13,6 @@ use App\Helpers\TextHelper;
 
 class AspirasiController extends Controller
 {
-    /**
-     * Tampilkan semua aspirasi dengan data votes count dan aspirasi yang sudah di-vote user.
-     */
     public function index()
     {
         $user = Auth::user();
@@ -30,7 +27,8 @@ class AspirasiController extends Controller
                     'judul' => TextHelper::filterKasar($aspirasi->judul),
                     'isi' => TextHelper::filterKasar($aspirasi->isi),
                     'status' => $aspirasi->status,
-                    'pengirim' => $aspirasi->is_anonim ? null : optional($aspirasi->user)->email,
+                    'pengirim' => $aspirasi->is_anonim ? 'Anonim' : optional($aspirasi->user)->email,
+                    'is_anonim' => $aspirasi->is_anonim,
                     'votes_count' => $aspirasi->votes_count ?? 0,
                     'topik' => $aspirasi->topik,
                     'is_owner' => $user && $aspirasi->user_id === optional($user)->id,
@@ -46,7 +44,6 @@ class AspirasiController extends Controller
             ? Vote::where('user_id', $user->id)->pluck('aspirasi_id')->toArray()
             : [];
 
-        // Log untuk debugging
         Log::info('User:', ['id' => optional($user)->id]);
         Log::info('Voted Aspirasi IDs:', $votedAspirasiIds);
 
@@ -56,9 +53,6 @@ class AspirasiController extends Controller
         ]);
     }
 
-    /**
-     * Proses vote oleh user terhadap aspirasi.
-     */
     public function vote(Request $request, $id)
     {
         $user = $request->user();
@@ -75,13 +69,11 @@ class AspirasiController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda sudah vote aspirasi ini.');
         }
 
-        // Simpan vote
         Vote::create([
             'user_id' => $user->id,
             'aspirasi_id' => $id,
         ]);
 
-        // Hitung ulang jumlah vote terkini dari database
         $totalVotes = Vote::where('aspirasi_id', $id)->count();
 
         Log::info("Vote berhasil oleh user {$user->id} untuk aspirasi {$id}. Total vote sekarang: {$totalVotes}");
@@ -89,9 +81,6 @@ class AspirasiController extends Controller
         return redirect()->route('dashboard')->with('success', 'Vote berhasil.');
     }
 
-    /**
-     * Halaman untuk tambah aspirasi.
-     */
     public function create()
     {
         Log::info('Mengakses halaman tambah aspirasi.');
@@ -103,16 +92,15 @@ class AspirasiController extends Controller
         ]);
     }
 
-    /**
-     * Simpan aspirasi baru.
-     */
     public function store(Request $request)
     {
+        Log::info('Request yang diterima:', $request->all()); 
+
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
             'topik_id' => 'required|exists:topiks,id',
-            'is_anonim' => 'boolean',
+            'is_anonim' => 'nullable|boolean',
         ]);
 
         $user = Auth::user();
@@ -126,8 +114,10 @@ class AspirasiController extends Controller
             'isi' => $validated['isi'],
             'topik_id' => $validated['topik_id'],
             'user_id' => $user->id,
-            'is_anonim' => $validated['is_anonim'] ?? false, 
+            'is_anonim' => (int) $request->input('is_anonim')
         ]);
+            
+        Log::info('Nilai is_anonim setelah boolean():', ['is_anonim' => $request->boolean('is_anonim')]);
 
         return redirect()->route('dashboard')->with('success', 'Aspirasi berhasil dikirim!');
     }
@@ -141,7 +131,7 @@ class AspirasiController extends Controller
         }
 
         $aspirasi = Aspirasi::where('id', $id)
-            ->whereNotNull('user_id') // pastikan bukan anonim
+            ->whereNotNull('user_id') 
             ->where('user_id', $user->id)
             ->first();
 
@@ -156,5 +146,4 @@ class AspirasiController extends Controller
             'topiks' => $topiks,
         ]);
     }
-
 }

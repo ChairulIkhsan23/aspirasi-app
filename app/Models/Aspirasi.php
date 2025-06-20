@@ -12,8 +12,16 @@ class Aspirasi extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'id';
+
+    public $timestamps = true; 
+    
     protected $fillable = [
-        'user_id', 'judul', 'isi', 'topik_id', 'status', 'lampiran', 'flag_konten', 'status_moderasi',
+        'user_id', 'judul', 'isi', 'topik_id', 'status', 'lampiran', 'flag_konten', 'status_moderasi', 'is_anonim',
+    ];
+
+    protected $casts = [
+    'is_anonim' => 'boolean',
     ];
 
     public function user()
