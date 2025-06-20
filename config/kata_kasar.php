@@ -40,6 +40,7 @@ return [
     'idi*t',
 
     // Huruf ganti angka (leet speak)
+    '4njing',
     '4nj1ng',
     'k0nt0l',
     'm3m3k',

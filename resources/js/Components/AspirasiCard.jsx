@@ -93,7 +93,7 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                         <VoteButton initialVoted={voted} onVote={handleVote} />
 
                         {/* Tombol Update: Hanya tampil jika user adalah pemilik aspirasi */}
-                        {item.is_owner && (
+                        {item.is_owner && !item.is_anonim && (
                             <Link
                                 href={route('aspirasi.edit', item.id)}
                                 className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 transition hover:bg-gray-100"
