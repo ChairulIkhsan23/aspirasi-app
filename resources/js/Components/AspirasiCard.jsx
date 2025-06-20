@@ -1,6 +1,9 @@
 import VoteButton from '@/Components/VoteButton';
+import { Ziggy } from '@/ziggy';
 import { Link, router } from '@inertiajs/react';
+import axios from 'axios';
 import { useState } from 'react';
+import { route } from 'ziggy-js';
 
 export default function AspirasiCard({ item, initialVoted = false }) {
     const [voted, setVoted] = useState(initialVoted);
@@ -9,8 +12,10 @@ export default function AspirasiCard({ item, initialVoted = false }) {
     const handleVote = (done) => {
         if (voted) return;
 
+        const url = route('aspirasi.vote', { id: item.id }, Ziggy);
+
         router.post(
-            route('aspirasi.vote', item.id),
+            url,
             {},
             {
                 onSuccess: () => {
@@ -26,6 +31,32 @@ export default function AspirasiCard({ item, initialVoted = false }) {
         );
     };
 
+    const handleDelete = () => {
+        const url = `/aspirasi/${item.id}`;
+
+        if (confirm('Yakin ingin menghapus aspirasi ini?')) {
+            axios
+                .post(
+                    url,
+                    { _method: 'DELETE' },
+                    {
+                        headers: {
+                            'X-CSRF-TOKEN': document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                        },
+                    },
+                )
+                .then(() => {
+                    alert('Berhasil dihapus!');
+                    window.location.reload();
+                })
+                .catch(() => {
+                    alert('Gagal menghapus aspirasi.');
+                });
+        }
+    };
+
     return (
         <div className="mb-6 w-full max-w-2xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
             <div className="p-6">
@@ -39,7 +70,6 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                             {item.judul}
                         </h3>
                     </div>
-
                     <span
                         className={`inline-flex items-center rounded px-3 py-1 text-xs font-medium ${
                             item.status === 'Selesai'
@@ -92,27 +122,51 @@ export default function AspirasiCard({ item, initialVoted = false }) {
 
                         <VoteButton initialVoted={voted} onVote={handleVote} />
 
-                        {/* Tombol Update tetap tampil jika pemilik */}
                         {item.is_owner && (
-                            <Link
-                                href={route('aspirasi.edit', item.id)}
-                                className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 transition hover:bg-gray-100"
-                            >
-                                <svg
-                                    className="mr-1.5 h-4 w-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                            <>
+                                <Link
+                                    href={route(
+                                        'aspirasi.edit',
+                                        { id: item.id },
+                                        Ziggy,
+                                    )}
+                                    className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 transition hover:bg-gray-100"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M11 5H6a2 2 0 00-2 2v11.5A1.5 1.5 0 005.5 20H17a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11 17H8v-3l9.586-9.586z"
-                                    />
-                                </svg>
-                                Update
-                            </Link>
+                                    <svg
+                                        className="mr-1.5 h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M11 5H6a2 2 0 00-2 2v11.5A1.5 1.5 0 005.5 20H17a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11 17H8v-3l9.586-9.586z"
+                                        />
+                                    </svg>
+                                    Update
+                                </Link>
+                                <button
+                                    onClick={handleDelete}
+                                    className="inline-flex items-center rounded-md border border-red-300 bg-red-50 px-3 py-1.5 text-xs text-red-700 transition hover:bg-red-100"
+                                >
+                                    <svg
+                                        className="mr-1.5 h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v2H9V4a1 1 0 011-1zM4 7h16"
+                                        />
+                                    </svg>
+                                    Hapus
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>

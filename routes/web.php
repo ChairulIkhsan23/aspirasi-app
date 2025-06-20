@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/aspirasi', [AspirasiController::class, 'store'])->name('aspirasi.store');
     Route::get('/aspirasi/{id}/edit', [AspirasiController::class, 'edit'])->name('aspirasi.edit');
     Route::patch('/aspirasi/{id}', [AspirasiController::class, 'update'])->name('aspirasi.update');
+    Route::delete('/aspirasi/{id}', [AspirasiController::class, 'destroy'])->name('aspirasi.destroy');
 });
 /*
 |--------------------------------------------------------------------------

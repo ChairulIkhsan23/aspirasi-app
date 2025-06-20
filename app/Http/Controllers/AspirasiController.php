@@ -146,4 +146,21 @@ class AspirasiController extends Controller
             'topiks' => $topiks,
         ]);
     }
+
+    public function destroy($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $aspirasi = Aspirasi::where('id', $id)
+                    ->where('user_id', $user->id)
+                    ->firstOrFail();
+
+        $aspirasi->delete();
+
+        return redirect()->back()->with('success', 'Aspirasi berhasil dihapus!');
+    }
 }
