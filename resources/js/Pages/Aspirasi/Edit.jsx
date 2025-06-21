@@ -22,8 +22,8 @@ export default function Edit({ auth, aspirasi, topiks }) {
     const submit = async (e) => {
         e.preventDefault();
 
-        if (!aspirasi.id) {
-            toast.error('ID Aspirasi tidak ditemukan.');
+        if (!auth.user) {
+            window.location.href = route('login');
             return;
         }
 
@@ -37,9 +37,10 @@ export default function Edit({ auth, aspirasi, topiks }) {
                 onError: () => {
                     toast.error('Gagal memperbarui.');
                 },
+                preserveScroll: true,
             });
         } catch (error) {
-            toast.error('Gagal memulai proses update.');
+            toast.error('Gagal memuat CSRF token atau sesi kadaluarsa.');
             console.error('Error:', error);
         }
     };
