@@ -158,6 +158,34 @@ class AspirasiController extends Controller
         ]);
     }
 
+public function update(Request $request, Aspirasi $aspirasi)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $request->validate([
+            'judul' => 'required|string|max:255',
+            'isi' => 'required|string',
+            'topik_id' => 'required|exists:topiks,id',
+            'is_anonim' => 'boolean',
+            'status' => 'required|string',
+        ]);
+
+        if ($user->role !== 'admin' && $aspirasi->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $aspirasi->update([
+            'judul' => $request->judul,
+            'isi' => $request->isi,
+            'topik_id' => $request->topik_id,
+            'is_anonim' => $request->is_anonim,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Aspirasi berhasil diperbarui.');
+    }
+
     public function destroy($id)
     {
         $user = Auth::user();

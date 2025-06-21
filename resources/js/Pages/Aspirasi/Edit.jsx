@@ -5,27 +5,39 @@ import SelectInput from '@/Components/SelectInput';
 import TextArea from '@/Components/TextArea';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 
 export default function Edit({ auth, aspirasi, topiks }) {
-    const { data, setData, put, processing, errors } = useForm({
-        judul: aspirasi.judul,
-        isi: aspirasi.isi,
-        topik_id: aspirasi.topik_id,
-        is_anonim: aspirasi.is_anonim,
-        status: aspirasi.status,
+    const { data, setData, patch, processing, errors } = useForm({
+        judul: aspirasi.judul || '',
+        isi: aspirasi.isi || '',
+        topik_id: aspirasi.topik_id || '',
+        is_anonim: aspirasi.is_anonim || false,
+        status: aspirasi.status || 'pending',
     });
 
     const submit = (e) => {
         e.preventDefault();
-        put(route('aspirasi.update', aspirasi.id));
+
+        patch(route('aspirasi.update', { aspirasi: aspirasi.id }), {
+            onSuccess: () => {
+                alert('Aspirasi berhasil diperbarui.');
+                setTimeout(() => {
+                    window.location.href = route('dashboard');
+                }, 1000);
+            },
+            onError: () => {
+                alert('Gagal memperbarui aspirasi.');
+            },
+        });
     };
 
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="text-xl font-semibold text-gray-800">
                     Edit Aspirasi
                 </h2>
             }
@@ -33,11 +45,12 @@ export default function Edit({ auth, aspirasi, topiks }) {
             <Head title="Edit Aspirasi" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
+                    <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                         <div className="p-6 text-gray-900">
-                            <form onSubmit={submit}>
-                                <div className="mb-4">
+                            <form onSubmit={submit} className="space-y-4">
+                                {/* Judul */}
+                                <div>
                                     <InputLabel
                                         htmlFor="judul"
                                         value="Judul Aspirasi"
@@ -48,11 +61,10 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                         name="judul"
                                         value={data.judul}
                                         className="mt-1 block w-full"
-                                        isFocused={true}
+                                        isFocused
                                         onChange={(e) =>
                                             setData('judul', e.target.value)
                                         }
-                                        maxLength="255"
                                         required
                                     />
                                     <InputError
@@ -61,7 +73,8 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                     />
                                 </div>
 
-                                <div className="mb-4">
+                                {/* Isi */}
+                                <div>
                                     <InputLabel
                                         htmlFor="isi"
                                         value="Isi Aspirasi"
@@ -71,7 +84,7 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                         name="isi"
                                         value={data.isi}
                                         className="mt-1 block w-full"
-                                        rows={6}
+                                        rows={5}
                                         onChange={(e) =>
                                             setData('isi', e.target.value)
                                         }
@@ -83,7 +96,8 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                     />
                                 </div>
 
-                                <div className="mb-4">
+                                {/* Topik */}
+                                <div>
                                     <InputLabel
                                         htmlFor="topik_id"
                                         value="Topik"
@@ -113,9 +127,11 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                         className="mt-2"
                                     />
                                 </div>
+
+                                {/* Lampiran */}
                                 {aspirasi.lampiran && (
-                                    <div className="mb-4 text-sm text-gray-600">
-                                        Lampiran saat ini:{' '}
+                                    <div className="text-sm text-gray-600">
+                                        Lampiran:{' '}
                                         <a
                                             href={`/storage/${aspirasi.lampiran}`}
                                             target="_blank"
@@ -126,7 +142,9 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                         </a>
                                     </div>
                                 )}
-                                <div className="mb-4 flex items-center">
+
+                                {/* Anonim */}
+                                <div className="flex items-center">
                                     <input
                                         id="is_anonim"
                                         type="checkbox"
@@ -145,14 +163,11 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                         value="Kirim sebagai anonim"
                                         className="ml-2"
                                     />
-                                    <InputError
-                                        message={errors.is_anonim}
-                                        className="mt-2"
-                                    />
                                 </div>
 
+                                {/* Status untuk admin */}
                                 {auth.user.role === 'admin' && (
-                                    <div className="mb-4">
+                                    <div>
                                         <InputLabel
                                             htmlFor="status"
                                             value="Status"
@@ -190,30 +205,8 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                     </div>
                                 )}
 
-                                <div className="mt-4 flex items-center justify-end">
-                                    <Link
-                                        href={route('dashboard')}
-                                        className="inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-700 transition duration-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                    >
-                                        {/* Icon */}
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 16 16"
-                                            fill="currentColor"
-                                            className="mr-2 size-4"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M12.5 9.75A2.75 2.75 0 0 0 9.75 7H4.56l2.22 2.22a.75.75 0 1 1-1.06 1.06l-3.5-3.5a.75.75 0 0 1 0-1.06l3.5-3.5a.75.75 0 0 1 1.06 1.06L4.56 5.5h5.19a4.25 4.25 0 0 1 0 8.5h-1a.75.75 0 0 1 0-1.5h1a2.75 2.75 0 0 0 2.75-2.75Z"
-                                                clipRule="evenodd"
-                                            />
-                                        </svg>
-                                        Kembali ke Dashboard
-                                    </Link>
-                                    <PrimaryButton
-                                        className="ml-4"
-                                        disabled={processing}
-                                    >
+                                <div className="flex justify-end">
+                                    <PrimaryButton disabled={processing}>
                                         {processing
                                             ? 'Menyimpan...'
                                             : 'Simpan Perubahan'}

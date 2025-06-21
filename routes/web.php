@@ -28,13 +28,12 @@ Route::get('/', [AuthenticatedSessionController::class, 'create'])
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [AspirasiController::class, 'index'])->name('dashboard');
+    
+    Route::resource('aspirasi', AspirasiController::class)->except(['show'])->names('aspirasi');
+    
     Route::post('/aspirasi/{id}/vote', [AspirasiController::class, 'vote'])->name('aspirasi.vote');
-    Route::get('/aspirasi/create', [AspirasiController::class, 'create'])->name('aspirasi.create');
-    Route::post('/aspirasi', [AspirasiController::class, 'store'])->name('aspirasi.store');
-    Route::get('/aspirasi/{id}/edit', [AspirasiController::class, 'edit'])->name('aspirasi.edit');
-    Route::patch('/aspirasi/{id}', [AspirasiController::class, 'update'])->name('aspirasi.update');
-    Route::delete('/aspirasi/{id}', [AspirasiController::class, 'destroy'])->name('aspirasi.destroy');
 });
+
 /*
 |--------------------------------------------------------------------------
 | Auth Routes - Login, Register, Logout
