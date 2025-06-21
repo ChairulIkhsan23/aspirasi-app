@@ -64,6 +64,19 @@ export default function AspirasiCard({ item, initialVoted = false }) {
                 <p className="mt-3 text-base leading-relaxed text-gray-700">
                     {item.isi}
                 </p>
+                {item.lampiran && (
+                    <div className="mt-4 text-sm text-blue-700">
+                        Lampiran:{' '}
+                        <a
+                            href={`/storage/${item.lampiran}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                        >
+                            Lihat Lampiran
+                        </a>
+                    </div>
+                )}
 
                 {/* Footer */}
                 <div className="mt-6 flex flex-col gap-4 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">

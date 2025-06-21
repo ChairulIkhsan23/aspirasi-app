@@ -113,7 +113,19 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                         className="mt-2"
                                     />
                                 </div>
-
+                                {aspirasi.lampiran && (
+                                    <div className="mb-4 text-sm text-gray-600">
+                                        Lampiran saat ini:{' '}
+                                        <a
+                                            href={`/storage/${aspirasi.lampiran}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 underline"
+                                        >
+                                            Lihat Lampiran
+                                        </a>
+                                    </div>
+                                )}
                                 <div className="mb-4 flex items-center">
                                     <input
                                         id="is_anonim"

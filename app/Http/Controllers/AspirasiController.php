@@ -31,6 +31,7 @@ class AspirasiController extends Controller
                     'is_anonim' => $aspirasi->is_anonim,
                     'votes_count' => $aspirasi->votes_count ?? 0,
                     'topik' => $aspirasi->topik,
+                    'lampiran' => $aspirasi->lampiran,
                     'is_owner' => $user && $aspirasi->user_id === optional($user)->id,
                     'komentar_tindak_lanjut' => $aspirasi->tindakLanjut ? [
                         'keterangan' => TextHelper::filterKasar($aspirasi->tindakLanjut->keterangan),
@@ -44,6 +45,8 @@ class AspirasiController extends Controller
             ? Vote::where('user_id', $user->id)->pluck('aspirasi_id')->toArray()
             : [];
 
+        
+        Log::info('Aspirasis:', $aspirasis->toArray());
         Log::info('User:', ['id' => optional($user)->id]);
         Log::info('Voted Aspirasi IDs:', $votedAspirasiIds);
 
@@ -101,6 +104,7 @@ class AspirasiController extends Controller
             'isi' => 'required|string',
             'topik_id' => 'required|exists:topiks,id',
             'is_anonim' => 'nullable|boolean',
+            'lampiran' => 'nullable|file|max:2048',
         ]);
 
         $user = Auth::user();
@@ -109,12 +113,19 @@ class AspirasiController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda harus login untuk mengirim aspirasi.');
         }
 
+        $lampiranPath = null;
+
+        if ($request->hasFile('lampiran')) {
+            $lampiranPath = $request->file('lampiran')->store('lampiran', 'public');
+        }
+
         Aspirasi::create([
             'judul' => $validated['judul'],
             'isi' => $validated['isi'],
             'topik_id' => $validated['topik_id'],
             'user_id' => $user->id,
-            'is_anonim' => (int) $request->input('is_anonim')
+            'is_anonim' => (int) $request->input('is_anonim'),
+            'lampiran' => $lampiranPath,
         ]);
             
         Log::info('Nilai is_anonim setelah boolean():', ['is_anonim' => $request->boolean('is_anonim')]);

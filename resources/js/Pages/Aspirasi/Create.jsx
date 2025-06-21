@@ -112,7 +112,28 @@ export default function Create({ auth, topiks }) {
                                         className="mt-2"
                                     />
                                 </div>
-
+                                <div className="mb-4">
+                                    <InputLabel
+                                        htmlFor="lampiran"
+                                        value="Lampiran (opsional)"
+                                    />
+                                    <input
+                                        id="lampiran"
+                                        name="lampiran"
+                                        type="file"
+                                        className="mt-1 block w-full text-sm text-gray-700"
+                                        onChange={(e) =>
+                                            setData(
+                                                'lampiran',
+                                                e.target.files[0],
+                                            )
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.lampiran}
+                                        className="mt-2"
+                                    />
+                                </div>
                                 <div className="mb-4 flex items-center">
                                     <input
                                         id="is_anonim"
