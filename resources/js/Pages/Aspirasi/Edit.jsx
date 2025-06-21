@@ -6,6 +6,8 @@ import TextArea from '@/Components/TextArea';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import { route } from 'ziggy-js';
 
 export default function Edit({ auth, aspirasi, topiks }) {
@@ -17,20 +19,29 @@ export default function Edit({ auth, aspirasi, topiks }) {
         status: aspirasi.status || 'pending',
     });
 
-    const submit = (e) => {
+    const submit = async (e) => {
         e.preventDefault();
 
-        patch(route('aspirasi.update', { aspirasi: aspirasi.id }), {
-            onSuccess: () => {
-                alert('Aspirasi berhasil diperbarui.');
-                setTimeout(() => {
-                    window.location.href = route('dashboard');
-                }, 1000);
-            },
-            onError: () => {
-                alert('Gagal memperbarui aspirasi.');
-            },
-        });
+        if (!aspirasi.id) {
+            toast.error('ID Aspirasi tidak ditemukan.');
+            return;
+        }
+
+        try {
+            await axios.get('/sanctum/csrf-cookie');
+
+            patch(route('aspirasi.update', aspirasi.id), {
+                onSuccess: () => {
+                    toast.success('Berhasil diperbarui.');
+                },
+                onError: () => {
+                    toast.error('Gagal memperbarui.');
+                },
+            });
+        } catch (error) {
+            toast.error('Gagal memulai proses update.');
+            console.error('Error:', error);
+        }
     };
 
     return (
@@ -43,7 +54,6 @@ export default function Edit({ auth, aspirasi, topiks }) {
             }
         >
             <Head title="Edit Aspirasi" />
-
             <div className="py-12">
                 <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden rounded-lg bg-white shadow-sm">
@@ -165,7 +175,7 @@ export default function Edit({ auth, aspirasi, topiks }) {
                                     />
                                 </div>
 
-                                {/* Status untuk admin */}
+                                {/* Status (hanya untuk admin) */}
                                 {auth.user.role === 'admin' && (
                                     <div>
                                         <InputLabel

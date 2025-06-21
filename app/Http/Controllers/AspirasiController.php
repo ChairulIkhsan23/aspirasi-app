@@ -158,11 +158,9 @@ class AspirasiController extends Controller
         ]);
     }
 
-public function update(Request $request, Aspirasi $aspirasi)
+    public function update(Request $request, Aspirasi $aspirasi)
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
-
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
@@ -183,9 +181,9 @@ public function update(Request $request, Aspirasi $aspirasi)
             'status' => $request->status,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Aspirasi berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Aspirasi berhasil diperbarui!');
     }
-
+    
     public function destroy($id)
     {
         $user = Auth::user();
