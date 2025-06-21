@@ -51,6 +51,7 @@ return [
     'g0bl0k',
     't4i',
     'br3ngs3k',
+    'bangs4t',
 
     // Tambahan versi singkatan aneh
     'anjg',
